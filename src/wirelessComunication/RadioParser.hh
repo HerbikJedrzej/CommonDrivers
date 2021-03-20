@@ -43,7 +43,7 @@
 
 namespace Drivers{
 
-enum RadioTrybe{
+enum RadioMode{
     RemoteControl,
     Drone,
     HalfDuplex,
@@ -54,7 +54,7 @@ class RadioParser
 {
 private:
 	RadioIfc* const radio;
-	const RadioTrybe trybe;
+	const RadioMode mode;
 	uint16_t fromLastSucces = {0};
 	bool fly                = {false};
 	bool engineOn           = {false};
@@ -77,7 +77,7 @@ private:
 	void timeEventForRemote();
 	void timeEventForDrone();	
 public:
-    RadioParser(RadioIfc* const radio, const RadioTrybe trybe);
+    RadioParser(RadioIfc* const radio, const RadioMode mode);
     ~RadioParser();
 	void run();
 	bool getFlyOnOption() const;

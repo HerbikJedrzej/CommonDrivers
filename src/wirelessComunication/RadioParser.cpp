@@ -3,9 +3,9 @@
 
 namespace Drivers{
 
-RadioParser::RadioParser(Drivers::RadioIfc* const _radio, const RadioTrybe _trybe):
+RadioParser::RadioParser(Drivers::RadioIfc* const _radio, const RadioMode _mode):
 radio(_radio),
-trybe(_trybe){
+mode(_mode){
 }
 
 RadioParser::~RadioParser(){
@@ -98,9 +98,9 @@ void RadioParser::run(){
     if(transmissionNumber == 8)
         transmissionNumber = 0;
     decrementFilters();
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         timeEventForRemote();
-    else if(trybe == RadioTrybe::Drone)
+    else if(mode == RadioMode::Drone)
         timeEventForDrone();
     else
         THROW_invalid_argument("Not implemented parser type");
@@ -111,131 +111,131 @@ void RadioParser::run(){
 ///////////////////////////////////////////////////////////////////
 
 bool RadioParser::getFlyOnOption() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getFlyOnOption.");
     return fly;
 }
 
 void RadioParser::setFlyOnOption(const bool val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setFlyOnOption.");
     fly = val && engineOn;
 }
 
 bool RadioParser::getEngineOnOption() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getEngineOnOption.");
     return engineOn;
 }
 
 void RadioParser::setEngineOnOption(const bool val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setEngineOnOption.");
     engineOn = val;
     fly = fly && engineOn;
 }
 
 bool RadioParser::getJoyRightButtonOption() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getJoyRightButtonOption.");
     return joyRTime == optionsInterval;
 }
 
 void RadioParser::setJoyRightButtonOption(){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setJoyRightButtonOption.");
     if(joyRTime == 0)
         joyRTime = optionsInterval;
 }
 
 bool RadioParser::getJoyLeftButtonOption() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getJoyLeftButtonOption.");
     return joyLTime == optionsInterval;
 }
 
 void RadioParser::setJoyLeftButtonOption(){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setJoyLeftButtonOption.");
     if(joyLTime == 0)
         joyLTime = optionsInterval;
 }
 
 bool RadioParser::getSpecialButtonOption() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getSpecialButtonOption.");
     return specialOptTime == optionsInterval;
 }
 
 void RadioParser::setSpecialButtonOption(){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setSpecialButtonOption.");
     if(specialOptTime == 0)
         specialOptTime = optionsInterval;
 }
 
 int8_t RadioParser::getRollValue() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getRollValue.");
     return roll;
 }
 
 void RadioParser::setRollValue(const int8_t val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setRollValue.");
     radio->setTx(1) = val;
 }
 
 int8_t RadioParser::getPitchValue() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getPitchValue.");
     return pitch;
 }
 
 void RadioParser::setPitchValue(const int8_t val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setPitchValue.");
     radio->setTx(2) = val;
 }
 
 int8_t RadioParser::getYawlValue() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getYawlValue.");
     return yawl;
 }
 
 void RadioParser::setYawlValue(const int8_t val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setYawlValue.");
     radio->setTx(3) = val;
 }
 
 int8_t RadioParser::getAltitudeIncremetionValue() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getAltitudeIncremetionValue.");
     return altitude;
 }
 
 void RadioParser::setAltitudeIncremetionValue(const int8_t val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setAltitudeIncremetionValue.");
     radio->setTx(4) = val;
 }
 
 uint8_t RadioParser::getMainOptionNumber() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getMainOptionNumber.");
     return mainNumber;
 }
 
 int8_t RadioParser::getMainOptionValue() const{
-    if(trybe == RadioTrybe::RemoteControl)
+    if(mode == RadioMode::RemoteControl)
         THROW_invalid_argument("Wrong mode for getMainOptionValue.");
     return mainValue;
 }
 
 void RadioParser::setMainOption(const uint8_t num, const int8_t val){
-    if(trybe == RadioTrybe::Drone)
+    if(mode == RadioMode::Drone)
         THROW_invalid_argument("Wrong mode for setMainOptionNumber.");
     if(mainNumberTime == 0){
         mainNumberTime = mainOptionInterval;
