@@ -49,7 +49,7 @@ prepend_list(SOURCE_PATHS  "../src/")
 # define target
 
 add_executable(${name} ${TESTS_SRC} ${SOURCE_PATHS})
-target_link_libraries(${name} LINK_PRIVATE ${GTEST_LIBRARIES})
+target_link_libraries(${name} LINK_PRIVATE ${GTEST_LIBRARIES} pthread)
 set_property(TARGET ${name} PROPERTY CXX_STANDARD 17)
 
 separate_arguments(ADDITIONAL_FLAGS)

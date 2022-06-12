@@ -17,7 +17,7 @@ enum RadioBitTest{
 };
 
 class Radio_testhelper : public Drivers::RadioIfc{
-    const uint8_t testKey = {0x67};
+    static constexpr uint8_t testKey = {0x67};
     unsigned int testTime = {0};
     uint8_t* const dataIn;
     uint8_t* const dataOut;

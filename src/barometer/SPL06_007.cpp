@@ -166,4 +166,16 @@ uint8_t SPL06_007::getIrqSource(){
     return (data & 0b111); 
 }
 
+double SPL06_007::getPreasure() {
+    return preasure;
+}
+
+double SPL06_007::getTemperature() {
+    return temperature;
+}
+
+double SPL06_007::getAltitude() {
+    return altitude;
+}
+
 }

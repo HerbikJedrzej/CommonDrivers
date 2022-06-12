@@ -79,6 +79,9 @@ private:
         _64_times = 6,
         _128_times = 7        
     } preasureOversampling, temperatureOversampling;
+    double preasure;
+    double temperature;
+    double altitude;
 public:
     struct Coefficients{
         // double c0 = 199.0;
@@ -97,6 +100,9 @@ public:
     SPL06_007(I2C_Ifc* _i2c, uint8_t _addr, bool& _dataReadyFlag, void (*_delay)(uint32_t), const InterruptInputList& _irqPin, Drivers::GPIO_Ifc* const _gpio);
     ~SPL06_007();
     bool init() final;
+    double getPreasure() override;
+    double getTemperature() override;
+    double getAltitude() override;
 };
 
 }

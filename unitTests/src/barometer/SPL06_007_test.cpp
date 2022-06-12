@@ -102,7 +102,7 @@ TEST(SPL06_007_Test, getTemperature){
     gpio.setChangedPin(InterruptInputList::SPL06_007_IrqPin);
     gpio.handleFinish(nullptr);
     EXPECT_TRUE(i2c.empty());
-    EXPECT_NEAR(barometer.temperature, 26.1192, 0.0001);
+    EXPECT_NEAR(barometer.getTemperature(), 26.1192, 0.0001);
 }
 
 TEST(SPL06_007_Test, getPreassure){
@@ -122,7 +122,7 @@ TEST(SPL06_007_Test, getPreassure){
     gpio.setChangedPin(InterruptInputList::SPL06_007_IrqPin);
     gpio.handleFinish(nullptr);
     EXPECT_TRUE(i2c.empty());
-    EXPECT_NEAR(barometer.preasure, 99819.4499, 0.0001);
+    EXPECT_NEAR(barometer.getPreasure(), 99819.4499, 0.0001);
 }
 
 TEST(SPL06_007_Test, getAltitude){
@@ -143,7 +143,7 @@ TEST(SPL06_007_Test, getAltitude){
         gpio.setChangedPin(InterruptInputList::SPL06_007_IrqPin);
         gpio.handleFinish(nullptr);
         EXPECT_TRUE(i2c.empty());
-        EXPECT_NEAR(barometer.altitude, 2331.1342 * i / 7, 0.0001);
+        EXPECT_NEAR(barometer.getAltitude(), 2331.1342 * i / 7, 0.0001);
     }
 }
 

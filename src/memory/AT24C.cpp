@@ -3,7 +3,7 @@
 namespace Drivers{
 
 Memory::Memory(I2C_Ifc* _i2c, GPIO_Ifc* _gpio, const uint8_t& _memoryAdress, const OutputList& _writeProtectPin, void (*_delay)(uint32_t)):
-	DriverIfc(_delay),
+	MemoryIfc(_delay),
 	i2c(_i2c),
 	gpio(_gpio),
 	memoryAdress(_memoryAdress),
@@ -25,26 +25,17 @@ void Memory::addCell(Cell* cell){
 	end = cell;
 }
 
-bool Memory::init(const RegPair* initTable, const uint16_t size){
-	uint8_t data[10]      = {0xac, 0x53, 0x35, 0xba, 0xc8, 0xc2, 0xaa, 0x26, 0xff, 0x00};
-	uint8_t dataClear[10] = {0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff};
-	uint8_t dataCheck[10] = {0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
-	while(!read(0x00, dataCheck, 10));
-	const bool firstUseOfMemory = (
-		dataCheck[0] != 0x00 ||
-		dataCheck[1] != 0xff ||
-		dataCheck[2] != 0x00 ||
-		dataCheck[3] != 0xff ||
-		dataCheck[4] != 0x00 ||
-		dataCheck[5] != 0xff ||
-		dataCheck[6] != 0x00 ||
-		dataCheck[7] != 0xff ||
-		dataCheck[8] != 0x00 ||
-		dataCheck[9] != 0xff
-	);
-	while(!write(0x00, data, 10));
+MemoryIfc::SizeModel Memory::getSizeModel(){
+	return sizeModel;
+}
+
+bool Memory::checkMemory(){
+	uint8_t data[8]      = {0xac, 0x53, 0x35, 0xba, 0xc8, 0xc2, 0xaa, 0x26};
+	uint8_t dataClear[8] = {0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff};
+	uint8_t dataCheck[8] = {0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
+	while(!write(0x00, data, 8));
 	delay(2);
-	while(!read(0x00, dataCheck, 10));
+	while(!read(0x00, dataCheck, 8));
 	const bool first = (
 		dataCheck[0] == 0xac &&
 		dataCheck[1] == 0x53 &&
@@ -53,13 +44,11 @@ bool Memory::init(const RegPair* initTable, const uint16_t size){
 		dataCheck[4] == 0xc8 &&
 		dataCheck[5] == 0xc2 &&
 		dataCheck[6] == 0xaa &&
-		dataCheck[7] == 0x26 &&
-		dataCheck[8] == 0xff &&
-		dataCheck[9] == 0x00
+		dataCheck[7] == 0x26
 	);
-	while(!write(0x00, dataClear, 10));
+	while(!write(0x00, dataClear, 8));
 	delay(2);
-	while(!read(0x00, dataCheck, 10));
+	while(!read(0x00, dataCheck, 8));
 	const bool second = (
 		dataCheck[0] == 0x00 &&
 		dataCheck[1] == 0xff &&
@@ -68,11 +57,61 @@ bool Memory::init(const RegPair* initTable, const uint16_t size){
 		dataCheck[4] == 0x00 &&
 		dataCheck[5] == 0xff &&
 		dataCheck[6] == 0x00 &&
-		dataCheck[7] == 0xff &&
-		dataCheck[8] == 0x00 &&
-		dataCheck[9] == 0xff
+		dataCheck[7] == 0xff
 	);
-	if(firstUseOfMemory && first && second){
+	return first && second;
+}
+
+bool Memory::checkFirstUsage(){
+	uint8_t dataCheck[8] = {0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
+	while(!read(0x00, dataCheck, 8));
+	return (
+		dataCheck[0] != 0x00 ||
+		dataCheck[1] != 0xff ||
+		dataCheck[2] != 0x00 ||
+		dataCheck[3] != 0xff ||
+		dataCheck[4] != 0x00 ||
+		dataCheck[5] != 0xff ||
+		dataCheck[6] != 0x00 ||
+		dataCheck[7] != 0xff
+	);
+}
+
+bool Memory::checkAvaibleOfCell(const uint16_t& addr){
+	uint8_t originalCellData = 0;
+	uint8_t cellData = 0b10100101;
+	while(!read(addr, &originalCellData, 1));
+	while(!write(addr, &cellData, 1));
+	delay(2);
+	cellData = 0;
+	while(!read(addr, &cellData, 1));
+	while(!write(addr, &originalCellData, 1));
+	return (cellData == 0b10100101);
+}
+
+MemoryIfc::SizeModel Memory::readSizeModel(){
+	if(checkAvaibleOfCell(SizeModel::BytePages256))
+		return SizeModel::BytePages256;
+	if(checkAvaibleOfCell(SizeModel::BytePages128))
+		return SizeModel::BytePages128;
+	if(checkAvaibleOfCell(SizeModel::BytePages64))
+		return SizeModel::BytePages64;
+	if(checkAvaibleOfCell(SizeModel::BytePages32))
+		return SizeModel::BytePages32;
+	if(checkAvaibleOfCell(SizeModel::BytePages16))
+		return SizeModel::BytePages16;
+	return SizeModel::BytePagesNotDefined;
+}
+
+bool Memory::init(const RegPair* initTable, const uint16_t size){
+	// unlockMemory();
+	// delay(2);
+	const bool firstUseOfMemory = checkFirstUsage();
+	const bool memoryStable = checkMemory();
+	if(memoryStable){
+		sizeModel = readSizeModel();
+	}
+	if(firstUseOfMemory && memoryStable){
 		uint8_t val;
 		for(uint16_t i = 0; i < size; i++){
 			val = initTable[i].value;
@@ -81,7 +120,9 @@ bool Memory::init(const RegPair* initTable, const uint16_t size){
 		}
 		return true;
 	}
-	return (first && second);
+	// delay(2);
+	// lockMemory();
+	return (memoryStable);
 }
 
 void Memory::lockMemory(){

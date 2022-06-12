@@ -17,10 +17,9 @@ public:
         dataReadyFlag(_dataReadyFlag){}
     ~BarometerIfc() = default;
     virtual bool init() = 0;
-    double preasure;
-    double temperature;
-    double altitude;
-protected:
+    virtual double getPreasure() = 0;
+    virtual double getTemperature() = 0;
+    virtual double getAltitude() = 0;
 };
 
 }
