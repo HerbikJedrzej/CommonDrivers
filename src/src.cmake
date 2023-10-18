@@ -21,6 +21,7 @@ list(APPEND SOURCE_PATHS
   barometer/SPL06_007.cpp
   basic/GPIO.cpp
   basic/I2C.cpp
+  basic/Logger.cpp
   basic/LED.cpp
   basic/SPI.cpp
   basic/Timer.cpp
