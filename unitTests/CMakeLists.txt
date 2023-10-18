@@ -12,6 +12,7 @@ list(APPEND TESTS_SRC
   src/basic/GPIO_test.cpp
   src/basic/I2C_test.cpp
   src/basic/InterfacesConf_drivers_test.cpp
+  src/basic/Logger_test.cpp
   src/basic/LED_test.cpp
   src/basic/SPI_test.cpp
   src/basic/Timer_test.cpp
@@ -49,7 +50,7 @@ prepend_list(SOURCE_PATHS  "../src/")
 # define target
 
 add_executable(${name} ${TESTS_SRC} ${SOURCE_PATHS})
-target_link_libraries(${name} LINK_PRIVATE ${GTEST_LIBRARIES} pthread)
+target_link_libraries(${name} LINK_PRIVATE ${GTEST_LIBRARIES} pthread gmock)
 set_property(TARGET ${name} PROPERTY CXX_STANDARD 17)
 
 separate_arguments(ADDITIONAL_FLAGS)
